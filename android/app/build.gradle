@@ -98,8 +98,15 @@ android {
         applicationId "com.scanner"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
+        renderscriptTargetApi 19                        // 스캔 이미지 저장을 위해 19버젼 이상 필요
+        renderscriptSupportModeEnabled true
         versionCode 1
         versionName "1.0"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     splits {
@@ -149,6 +156,12 @@ android {
 }
 
 dependencies {
+    /* D.O.T 필수 라이브러리 */
+    implementation (name:'scanm-camera', ext:'aar')
+    implementation (name:'scanm-recog', ext:'aar')
+    implementation (name:'scanm-wrapper', ext:'aar')
+    implementation 'com.google.guava:guava:25.1-android'
+    implementation 'org.apache.commons:commons-lang3:3.9'
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 
