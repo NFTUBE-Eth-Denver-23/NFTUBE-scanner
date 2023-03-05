@@ -19,7 +19,9 @@ import { Portal } from 'react-native-portalize'
 import { ScannerView } from '@/components/scanner/ScannerView'
 import SkeletonContent from 'react-native-skeleton-content-nonexpo'
 import { Spacing } from '@/components/Spacing'
+import { fetchCollection } from '@/api/fetchCollection'
 import { fetchNFTInfo } from '@/api/fetchNFTInfo'
+import { fetchUser } from '@/api/fetchUser'
 /* eslint-disable react-hooks/exhaustive-deps */
 import getSize from '@/utils/getSize'
 import { useStyle } from './style'
@@ -69,6 +71,42 @@ const Scanner = () => {
   } = useQuery(['nft-info', dotId], () => fetchNFTInfo(dotId), {
     enabled: !!dotId,
   })
+
+  const { data: collectionData, isLoading: isCollectionLoading } = useQuery(
+    ['nft-info', collectionId],
+    () => fetchCollection(collectionId),
+    {
+      enabled: !!collectionId,
+    },
+  )
+
+  const { data: creatorData, isLoading: isCreatorLoading } = useQuery(
+    ['user-info', collectionData?.chain],
+    async () =>
+      collectionData &&
+      nftData &&
+      fetchUser({
+        address: nftData?.creatorAddress,
+        chain: collectionData?.chain,
+      }),
+    {
+      enabled: !!collectionData?.chain,
+    },
+  )
+
+  const { data: ownerData, isLoading: isOwnerLoading } = useQuery(
+    ['user-info', collectionData?.chain],
+    async () =>
+      collectionData &&
+      nftData &&
+      fetchUser({
+        address: nftData?.ownerAddress,
+        chain: collectionData?.chain,
+      }),
+    {
+      enabled: !!collectionData?.chain,
+    },
+  )
 
   useEffect(() => {
     const onScanSubscription = eventEmitter.addListener('onFinished', res => {
@@ -181,181 +219,178 @@ const Scanner = () => {
     }
   }
 
-  // const skeletonView = () => (
-  //   <View style={styles.content}>
-  //     <TouchableOpacity
-  //       style={[Common.container.base, { flexDirection: 'row' }]}
-  //       onPress={() => onClick()}
-  //     >
-  //       <Image style={styles.tinyLogo} source={{ uri: nftData?.imageURL }} />
-  //       <View style={{ flex: 1, marginLeft: 15 }}>
-  //         <Text style={styles.contentHeading}>{`${nftData?.name}`}</Text>
-  //         <Spacing height={heightPercentage(2)} />
-  //         <View
-  //           style={{
-  //             flexDirection: 'row',
-  //             alignItems: 'center',
-  //           }}
-  //         >
-  //           <Images.profile width={19} height={19} stroke={'#888888'} />
-  //           <View
-  //             style={{
-  //               flex: 1,
-  //               marginLeft: widthPercentage(8),
-  //               justifyContent: 'center',
-  //             }}
-  //           >
-  //             <Text
-  //               style={{
-  //                 fontSize: 16,
-  //                 fontWeight: '400',
-  //                 color: '#888888',
-  //               }}
-  //             >
-  //               membership
-  //             </Text>
-  //           </View>
-  //         </View>
-  //         <Spacing height={heightPercentage(16)} />
-  //         <Text style={styles.contentDescription} numberOfLines={4}>
-  //           {`${nftData?.description}`}
-  //         </Text>
-  //       </View>
-  //     </TouchableOpacity>
-  //     <View style={styles.contentLine} />
-  //     <View>
-  //       <View
-  //         style={[
-  //           Common.container.base,
-  //           {
-  //             flexDirection: 'row',
-  //             alignItems: 'center',
-  //           },
-  //         ]}
-  //       >
-  //         <SkeletonContent
-  //           containerStyle={styles.profileIcon}
-  //           isLoading={isCreatorLoading}
-  //           layout={[
-  //             {
-  //               key: 'someId',
-  //               width: 48,
-  //               height: 48,
-  //               borderRadius: 48 / 2,
-  //             },
-  //           ]}
-  //         >
-  //           <Image
-  //             style={styles.profileIcon}
-  //             source={{ uri: creatorData?.profilePhoto }}
-  //           />
-  //         </SkeletonContent>
-  //         <View
-  //           style={{
-  //             flex: 1,
-  //             marginLeft: 10,
-  //             justifyContent: 'center',
-  //           }}
-  //         >
-  //           <SkeletonContent
-  //             containerStyle={{
-  //               flex: 1,
-  //               justifyContent: 'center',
-  //             }}
-  //             isLoading={isCreatorLoading}
-  //             layout={[
-  //               {
-  //                 key: 'someId',
-  //                 width: 200,
-  //                 height: 25,
-  //               },
-  //             ]}
-  //           >
-  //             <Text
-  //               style={{
-  //                 fontSize: 18,
-  //                 fontWeight: '700',
-  //                 lineHeight: 25,
-  //                 color: '#000000',
-  //               }}
-  //             >
-  //               {`created by ${creatorData?.userTag}`}
-  //             </Text>
-  //           </SkeletonContent>
-  //           <Text
-  //             style={{
-  //               fontSize: 13,
-  //               fontWeight: '500',
-  //               color: '#888888',
-  //               lineHeight: 15,
-  //             }}
-  //           >
-  //             {`${maskingName(nftData?.creatorAddress)}`}
-  //           </Text>
-  //         </View>
-  //       </View>
-  //       <Spacing height={heightPercentage(14)} />
-  //       <View
-  //         style={[
-  //           Common.container.base,
-  //           { flexDirection: 'row', alignItems: 'center', marginBottom: 30 },
-  //         ]}
-  //       >
-  //         <Spacing width={widthPercentage(12)} />
-  //         <Images.right width={10} height={16} />
-  //         <Spacing width={widthPercentage(12)} />
-  //         <SkeletonContent
-  //           containerStyle={styles.profileIcon}
-  //           isLoading={isOwnerLoading}
-  //           layout={[
-  //             {
-  //               key: 'someId',
-  //               width: 48,
-  //               height: 48,
-  //               borderRadius: 48 / 2,
-  //             },
-  //           ]}
-  //         >
-  //           <Image
-  //             style={styles.profileIcon}
-  //             source={{ uri: ownerData?.profilePhoto }}
-  //           />
-  //         </SkeletonContent>
-  //         <View style={{ flex: 1, marginLeft: 10, justifyContent: 'center' }}>
-  //           <SkeletonContent
-  //             containerStyle={{
-  //               flex: 1,
-  //               justifyContent: 'center',
-  //             }}
-  //             isLoading={isOwnerLoading}
-  //             layout={[
-  //               {
-  //                 key: 'someId',
-  //                 width: 200,
-  //                 height: 25,
-  //               },
-  //             ]}
-  //           >
-  //             <Text
-  //               style={{
-  //                 fontSize: 18,
-  //                 fontWeight: '700',
-  //                 lineHeight: 25,
-  //                 color: '#000000',
-  //               }}
-  //             >
-  //               {`owned by ${ownerData?.userTag}`}
-  //             </Text>
-  //           </SkeletonContent>
+  const skeletonView = () => (
+    <View style={styles.content}>
+      <View style={[Common.container.base, { flexDirection: 'row' }]}>
+        <Image style={styles.tinyLogo} source={{ uri: nftData?.imageURL }} />
+        <View style={{ flex: 1, marginLeft: 15 }}>
+          <Text style={styles.contentHeading}>{`${nftData?.name}`}</Text>
+          <Spacing height={heightPercentage(2)} />
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}
+          >
+            <Images.profile width={19} height={19} stroke={'#888888'} />
+            <View
+              style={{
+                flex: 1,
+                marginLeft: widthPercentage(8),
+                justifyContent: 'center',
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: '400',
+                  color: '#888888',
+                }}
+              >
+                membership
+              </Text>
+            </View>
+          </View>
+          <Spacing height={heightPercentage(16)} />
+          <Text style={styles.contentDescription} numberOfLines={4}>
+            {`${nftData?.description}`}
+          </Text>
+        </View>
+      </View>
+      <View style={styles.contentLine} />
+      <View>
+        <View
+          style={[
+            Common.container.base,
+            {
+              flexDirection: 'row',
+              alignItems: 'center',
+            },
+          ]}
+        >
+          <SkeletonContent
+            containerStyle={styles.profileIcon}
+            isLoading={isCreatorLoading}
+            layout={[
+              {
+                key: 'someId',
+                width: 48,
+                height: 48,
+                borderRadius: 48 / 2,
+              },
+            ]}
+          >
+            <Image
+              style={styles.profileIcon}
+              source={{ uri: creatorData?.profilePhoto }}
+            />
+          </SkeletonContent>
+          <View
+            style={{
+              flex: 1,
+              marginLeft: 10,
+              justifyContent: 'center',
+            }}
+          >
+            <SkeletonContent
+              containerStyle={{
+                flex: 1,
+                justifyContent: 'center',
+              }}
+              isLoading={isCreatorLoading}
+              layout={[
+                {
+                  key: 'someId',
+                  width: 200,
+                  height: 25,
+                },
+              ]}
+            >
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: '700',
+                  lineHeight: 25,
+                  color: '#000000',
+                }}
+              >
+                {`created by ${creatorData?.userTag}`}
+              </Text>
+            </SkeletonContent>
+            <Text
+              style={{
+                fontSize: 13,
+                fontWeight: '500',
+                color: '#888888',
+                lineHeight: 15,
+              }}
+            >
+              {`${nftData && maskingName(nftData?.ownerAddress)}`}
+            </Text>
+          </View>
+        </View>
+        <Spacing height={heightPercentage(14)} />
+        <View
+          style={[
+            Common.container.base,
+            { flexDirection: 'row', alignItems: 'center', marginBottom: 30 },
+          ]}
+        >
+          <Spacing width={widthPercentage(12)} />
+          <Images.right width={10} height={16} />
+          <Spacing width={widthPercentage(12)} />
+          <SkeletonContent
+            containerStyle={styles.profileIcon}
+            isLoading={isOwnerLoading}
+            layout={[
+              {
+                key: 'someId',
+                width: 48,
+                height: 48,
+                borderRadius: 48 / 2,
+              },
+            ]}
+          >
+            <Image
+              style={styles.profileIcon}
+              source={{ uri: ownerData?.profilePhoto }}
+            />
+          </SkeletonContent>
+          <View style={{ flex: 1, marginLeft: 10, justifyContent: 'center' }}>
+            <SkeletonContent
+              containerStyle={{
+                flex: 1,
+                justifyContent: 'center',
+              }}
+              isLoading={isOwnerLoading}
+              layout={[
+                {
+                  key: 'someId',
+                  width: 200,
+                  height: 25,
+                },
+              ]}
+            >
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: '700',
+                  lineHeight: 25,
+                  color: '#000000',
+                }}
+              >
+                {`owned by ${ownerData?.userTag}`}
+              </Text>
+            </SkeletonContent>
 
-  //           <Text style={{ fontSize: 13, fontWeight: '500', color: '#888888' }}>
-  //             {`${nftData && maskingName(nftData?.ownerAddress)}`}
-  //           </Text>
-  //         </View>
-  //       </View>
-  //     </View>
-  //   </View>
-  // )
+            <Text style={{ fontSize: 13, fontWeight: '500', color: '#888888' }}>
+              {`${nftData && maskingName(nftData?.ownerAddress)}`}
+            </Text>
+          </View>
+        </View>
+      </View>
+    </View>
+  )
 
   return (
     <View style={Layout.fill}>
@@ -443,7 +478,7 @@ const Scanner = () => {
           </TouchableOpacity>
         </View>
       </View>
-      {/* <Portal>
+      <Portal>
         <Modalize
           ref={modalizeRef}
           adjustToContentHeight={true}
@@ -451,7 +486,7 @@ const Scanner = () => {
         >
           {skeletonView()}
         </Modalize>
-      </Portal> */}
+      </Portal>
     </View>
   )
 }
