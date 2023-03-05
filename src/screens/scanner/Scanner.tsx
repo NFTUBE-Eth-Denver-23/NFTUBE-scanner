@@ -11,8 +11,8 @@ import {
 } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { useMutation, useQuery } from 'react-query'
-import { useRecoilState, useRecoilValue } from 'recoil'
 
+import Config from 'react-native-config'
 import Lottie from 'lottie-react-native'
 import { Modalize } from 'react-native-modalize'
 import { Portal } from 'react-native-portalize'
@@ -22,8 +22,6 @@ import { Spacing } from '@/components/Spacing'
 import { fetchNFTInfo } from '@/api/fetchNFTInfo'
 /* eslint-disable react-hooks/exhaustive-deps */
 import getSize from '@/utils/getSize'
-import { incrementNFTScanCount } from '@/api/nfts'
-import { navigate } from '@/navigators/utils'
 import { useStyle } from './style'
 import { useTheme } from '@/hooks'
 import { useTranslation } from 'react-i18next'
@@ -445,15 +443,15 @@ const Scanner = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <Portal>
+      {/* <Portal>
         <Modalize
           ref={modalizeRef}
           adjustToContentHeight={true}
           onClose={() => onCloseModal()}
         >
-          {/* {skeletonView()} */}
+          {skeletonView()}
         </Modalize>
-      </Portal>
+      </Portal> */}
     </View>
   )
 }
