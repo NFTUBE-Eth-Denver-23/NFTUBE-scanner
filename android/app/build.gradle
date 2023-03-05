@@ -1,5 +1,6 @@
 apply plugin: "com.android.application"
 apply plugin: "com.facebook.react"
+apply plugin: 'kotlin-android'
 
 import com.android.build.OutputFile
 
@@ -52,6 +53,13 @@ react {
     // hermesFlags = ["-O", "-output-source-map"]
 }
 
+project.ext.envConfigFiles = [
+        prodDebug: ".env.prod",
+        prodRelease: ".env.prod",
+        devRelease: ".env.dev",
+        devDebug: ".env.dev",
+]
+
 /**
  * Set this to true to create four separate APKs instead of one,
  * one for each native architecture. This is useful if you don't
@@ -98,8 +106,15 @@ android {
         applicationId "com.scanner"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
+        renderscriptTargetApi 19                        // 스캔 이미지 저장을 위해 19버젼 이상 필요
+        renderscriptSupportModeEnabled true
         versionCode 1
         versionName "1.0"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     splits {
@@ -131,6 +146,16 @@ android {
         }
     }
 
+    flavorDimensions "default"
+    productFlavors {
+        prod {
+            manifestPlaceholders = [appName: "NFTUBE"]
+        }
+        dev {
+            manifestPlaceholders = [appName: "NFTUBE"]
+        }
+    }
+
     // applicationVariants are e.g. debug, release
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
@@ -146,11 +171,27 @@ android {
 
         }
     }
+
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
 }
 
 dependencies {
+    /* D.O.T 필수 라이브러리 */
+    implementation (name:'scanm-camera', ext:'aar')
+    implementation (name:'scanm-recog', ext:'aar')
+    implementation (name:'scanm-wrapper', ext:'aar')
+    implementation 'com.google.guava:guava:25.1-android'
+    implementation 'org.apache.commons:commons-lang3:3.9'
+    implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
+
+    implementation fileTree(dir: "libs", include: ["*.jar"])
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
+    implementation project(':react-native-config')
 
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.0.0")
 
@@ -168,3 +209,4 @@ dependencies {
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"

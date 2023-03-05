@@ -4,25 +4,11 @@ import {
   createNavigationContainerRef,
 } from '@react-navigation/native'
 
-import { Asset } from '@/types/Asset'
-import { Collection } from '@/types/Collection'
-import { NFT } from '@/types/NFT'
 import { StackScreenProps } from '@react-navigation/stack'
-import { User } from '@/types/User'
 
 export type RootStackParamList = {
   Home: undefined
   Scanner: undefined
-  ScannerDetail: {
-    nftData: NFT
-    collectionData: Collection
-    creatorData: User
-    ownerData: User
-    assetsData: any
-    isFlashOn?: boolean
-    isZoomOn?: boolean
-    onReturn?: (arg: any) => void
-  }
   Permission: undefined
 }
 

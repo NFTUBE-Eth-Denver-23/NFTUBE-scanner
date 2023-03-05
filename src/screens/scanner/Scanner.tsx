@@ -11,28 +11,22 @@ import {
 } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { useMutation, useQuery } from 'react-query'
-import { useRecoilState, useRecoilValue } from 'recoil'
 
+import Config from 'react-native-config'
 import Lottie from 'lottie-react-native'
 import { Modalize } from 'react-native-modalize'
 import { Portal } from 'react-native-portalize'
 import { ScannerView } from '@/components/scanner/ScannerView'
 import SkeletonContent from 'react-native-skeleton-content-nonexpo'
 import { Spacing } from '@/components/Spacing'
-import { User } from '@/types/User'
 import { fetchCollection } from '@/api/fetchCollection'
 import { fetchNFTInfo } from '@/api/fetchNFTInfo'
-/* eslint-disable react-hooks/exhaustive-deps */
 import { fetchUser } from '@/api/fetchUser'
+/* eslint-disable react-hooks/exhaustive-deps */
 import getSize from '@/utils/getSize'
-import { incrementNFTScanCount } from '@/api/nfts'
-import { navigate } from '@/navigators/utils'
-import { scanCountState } from '@/store/user/scanCountState'
-import { useBrowsingChain } from '@/hooks/useBrowsingChain'
 import { useStyle } from './style'
 import { useTheme } from '@/hooks'
 import { useTranslation } from 'react-i18next'
-import { userState } from '@/store/user/userState'
 
 interface receiveDataProps {
   actionType: string
@@ -55,7 +49,6 @@ interface receiveDataProps {
 }
 
 const Scanner = () => {
-  const user = useRecoilValue<User>(userState)
   const { t } = useTranslation()
   const { styles } = useStyle()
   const { Common, Layout, Images } = useTheme()
@@ -67,8 +60,6 @@ const Scanner = () => {
   const [isZoomOn, setIsZoomOn] = useState(false)
   const [isLoadingVisible, setIsLoadingVisible] = useState(false)
   const { heightPercentage, widthPercentage } = getSize()
-  const { browsingChainId } = useBrowsingChain()
-  const [scanCount, setScanCount] = useRecoilState(scanCountState)
 
   const [dotId, setDotId] = useState<string>('')
   const [collectionId, setCollectionId] = useState<string>('')
@@ -117,28 +108,6 @@ const Scanner = () => {
     },
   )
 
-  const { mutate, isLoading: saveLoading } = useMutation(
-    ['increment-scan-count'],
-    async () => {
-      return (
-        nftData?.nftId &&
-        (await incrementNFTScanCount({
-          nftId: nftData?.nftId,
-        }))
-      )
-    },
-    {
-      onSuccess: data => {
-        const temp = scanCount.slice()
-        nftData?.nftId && temp.push(nftData?.nftId)
-        setScanCount(temp)
-      },
-      onError: error => {
-        console.log('increment-scan-count error: ', error)
-      },
-    },
-  )
-
   useEffect(() => {
     const onScanSubscription = eventEmitter.addListener('onFinished', res => {
       if (Platform.OS === 'ios') {
@@ -181,15 +150,6 @@ const Scanner = () => {
       setIsLoadingVisible(false)
       modalizeRef.current?.open()
       nftData?.collectionId && setCollectionId(nftData?.collectionId)
-      if (
-        user !== undefined &&
-        user.userId !== '' &&
-        nftData?.nftId !== undefined
-      ) {
-        if (!scanCount.includes(nftData?.nftId)) {
-          mutate()
-        }
-      }
     }
   }, [isSuccess])
 
@@ -199,49 +159,6 @@ const Scanner = () => {
       setDotId(receiveData?.dotId)
     }
   }, [receiveData])
-
-  const onClick = () => {
-    navigate('ScannerDetail', {
-      onReturn: (item: any) => {
-        setDotId('')
-        setCollectionId('')
-        setIsFlashOn(item.isFlashOn)
-        if (Platform.OS === 'ios') {
-          RNScannerView.initCamera()
-        } else {
-          NativeMobileSDKBridge.initCamera()
-        }
-        setTimeout(function () {
-          if (Platform.OS === 'ios') {
-            RNScannerView.setFlashOn(item.isFlashOn)
-            RNScannerView.setZoomOn(isZoomOn)
-          } else {
-            NativeMobileSDKBridge.setFlashOn(item.isFlashOn)
-            NativeMobileSDKBridge.setZoomOn(isZoomOn)
-          }
-        }, 500)
-      },
-      nftData,
-      collectionData,
-      creatorData,
-      ownerData,
-      isFlashOn,
-      isZoomOn,
-    })
-    modalizeRef.current?.close()
-  }
-
-  const onClickProfile = () => {
-    if (
-      user !== undefined &&
-      user.userId !== '' &&
-      Object.keys(user).length > 0
-    ) {
-      navigate('MyProfile', null)
-    } else {
-      navigate('SignIn', null)
-    }
-  }
 
   const onClickFlash = () => {
     setIsFlashOn(!isFlashOn)
@@ -304,10 +221,7 @@ const Scanner = () => {
 
   const skeletonView = () => (
     <View style={styles.content}>
-      <TouchableOpacity
-        style={[Common.container.base, { flexDirection: 'row' }]}
-        onPress={() => onClick()}
-      >
+      <View style={[Common.container.base, { flexDirection: 'row' }]}>
         <Image style={styles.tinyLogo} source={{ uri: nftData?.imageURL }} />
         <View style={{ flex: 1, marginLeft: 15 }}>
           <Text style={styles.contentHeading}>{`${nftData?.name}`}</Text>
@@ -342,7 +256,7 @@ const Scanner = () => {
             {`${nftData?.description}`}
           </Text>
         </View>
-      </TouchableOpacity>
+      </View>
       <View style={styles.contentLine} />
       <View>
         <View
@@ -411,7 +325,7 @@ const Scanner = () => {
                 lineHeight: 15,
               }}
             >
-              {`${maskingName(nftData?.creatorAddress)}`}
+              {`${nftData && maskingName(nftData?.ownerAddress)}`}
             </Text>
           </View>
         </View>
@@ -561,27 +475,6 @@ const Scanner = () => {
                 stroke={'#FFFFFF'}
               />
             )}
-          </TouchableOpacity>
-        </View>
-        <View
-          style={{
-            marginTop: 17,
-            backgroundColor: 'rgba(49, 49, 49, 0.8)',
-            width: 50,
-            height: 50,
-            borderRadius: 34,
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingVertical: 9,
-          }}
-        >
-          <TouchableOpacity
-            style={{
-              padding: 7,
-            }}
-            onPress={onClickProfile}
-          >
-            <Images.profile width={25} height={25} stroke={'#FFFFFF'} />
           </TouchableOpacity>
         </View>
       </View>

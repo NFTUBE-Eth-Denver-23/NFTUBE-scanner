@@ -21,7 +21,6 @@ const Permission = () => {
           statuses[PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE] === 'granted' &&
           statuses[PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE] === 'granted'
         ) {
-          // navigateAndSimpleReset('SignIn')
           setTimeout(() => {
             navigateAndSimpleReset('Scanner')
           }, 4000)
