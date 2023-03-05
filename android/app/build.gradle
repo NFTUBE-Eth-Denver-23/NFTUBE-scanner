@@ -153,6 +153,12 @@ android {
 
         }
     }
+
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
 }
 
 dependencies {
@@ -162,6 +168,8 @@ dependencies {
     implementation (name:'scanm-wrapper', ext:'aar')
     implementation 'com.google.guava:guava:25.1-android'
     implementation 'org.apache.commons:commons-lang3:3.9'
+
+    implementation fileTree(dir: "libs", include: ["*.jar"])
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 
