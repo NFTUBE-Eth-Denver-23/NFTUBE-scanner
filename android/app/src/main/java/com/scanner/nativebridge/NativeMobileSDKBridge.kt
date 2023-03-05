@@ -14,8 +14,7 @@ import com.scanner.nativebridge.RNScannerViewManager.Companion.myFragment
 
 
 class NativeMobileSDKBridge(
-    reactContext: ReactApplicationContext, private val eventEmitter: RNEventEmitter
-) : ReactContextBaseJavaModule(reactContext) {
+    reactContext: ReactApplicationContext, private val eventEmitter: RNEventEmitter) : ReactContextBaseJavaModule(reactContext) {
     private lateinit var cameraManager: CameraManager
     private lateinit var cameraId: String
 

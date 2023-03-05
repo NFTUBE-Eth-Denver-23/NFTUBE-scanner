@@ -5,15 +5,21 @@ package com.scanner.nativebridge
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.util.Log
 import android.view.Choreographer
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.fragment.app.FragmentActivity
 import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReactContext
+import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.ViewGroupManager
+import com.facebook.react.uimanager.annotations.ReactProp
+import com.facebook.react.uimanager.annotations.ReactPropGroup
 import com.scanner.scanner.MyFragment
 
 

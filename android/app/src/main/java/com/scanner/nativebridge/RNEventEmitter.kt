@@ -1,5 +1,6 @@
 package com.scanner.nativebridge
 
+import android.util.Log
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.bridge.WritableNativeMap

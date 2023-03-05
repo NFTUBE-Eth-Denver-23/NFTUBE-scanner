@@ -1,10 +1,10 @@
 {
-  "name": "Scanner",
+  "name": "NFTUBE",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "ios": "react-native run-ios",
-    "android": "react-native run-android --variant=devDebug",
+    "android": "react-native run-android",
     "android:dev": "react-native run-android --variant=devDebug",
     "start": "react-native start",
     "test": "jest",
@@ -47,7 +47,6 @@
     "react-native-status-bar-height": "^2.6.0",
     "react-native-svg": "^12.4.3",
     "react-native-tab-view": "^3.3.4",
-    "react-native-toast-message": "^2.1.5",
     "react-native-uuid": "^2.0.1",
     "react-query": "^3.39.2",
     "react-redux": "^8.0.2",

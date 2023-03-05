@@ -1,5 +1,6 @@
 apply plugin: "com.android.application"
 apply plugin: "com.facebook.react"
+apply plugin: 'kotlin-android'
 
 import com.android.build.OutputFile
 
@@ -168,6 +169,7 @@ dependencies {
     implementation (name:'scanm-wrapper', ext:'aar')
     implementation 'com.google.guava:guava:25.1-android'
     implementation 'org.apache.commons:commons-lang3:3.9'
+    implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     // The version of react-native is set by the React Native Gradle Plugin
